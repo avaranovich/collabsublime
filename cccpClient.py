@@ -9,6 +9,8 @@ import socket
 from sublime import Region
 from threading import Thread
 
+GLOBAL_REG = {}
+
 
 # composes "swank" JSON to be sent to the cccp agent
 class JsonComposer:
@@ -102,9 +104,10 @@ class TrackChangesCore:
 		self.diff_thread = Thread(target=self.track_sync, args=(view, currentText, filename))
 		self.diff_thread.start()
 
-
 class LinkfileCommand(sublime_plugin.TextCommand):
-	def run(self, edit):
+	def run(self, edit):		
+		global GLOBAL_REG
+		GLOBAL_REG[self.view.file_name()] = True
 		jsonComposer = JsonComposer();
 		jsonComposer.filename = self.view.file_name() 
 		jsonComposer.rpcSend(json.dumps(jsonComposer.linkFileJson()), False)
@@ -123,4 +126,6 @@ class TrackChangesWhenTypingListener(sublime_plugin.EventListener):
 		print ""
   
 	def on_modified(self, view):
-		self.trackChangesCore.track(view) 
+		global GLOBAL_REG
+		if GLOBAL_REG.has_key(view.file_name()):
+			self.trackChangesCore.track(view) 
