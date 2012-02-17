@@ -97,11 +97,17 @@ class TrackChangesCore:
 			pass
 
 	def track(self, view):
-		print "foo"
 		currentText = view.substr(Region(0, view.size()))
 		filename = view.file_name()
 		self.diff_thread = Thread(target=self.track_sync, args=(view, currentText, filename))
 		self.diff_thread.start()
+
+
+class LinkfileCommand(sublime_plugin.TextCommand):
+	def run(self, edit):
+		jsonComposer = JsonComposer();
+		jsonComposer.filename = self.view.file_name() 
+		jsonComposer.rpcSend(json.dumps(jsonComposer.linkFileJson()), False)
 
 class TrackChangesWhenTypingListener(sublime_plugin.EventListener):
 	def __init__(self):
@@ -117,10 +123,4 @@ class TrackChangesWhenTypingListener(sublime_plugin.EventListener):
 		print ""
   
 	def on_modified(self, view):
-		self.trackChangesCore.track(view)
-
-	def on_post_save(self, view):
-		if self.pending:
-			self.jsonComposer.filename = view.file_name()
-			self.jsonComposer.rpcSend(json.dumps(self.jsonComposer.linkFileJson()), False)
-			self.pending = False
+		self.trackChangesCore.track(view) 
