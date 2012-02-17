@@ -3,7 +3,6 @@ import functools
 import os
 import json
 import socket
-from sublime import Region
 from threading import Thread
 
 class JsonComposer:
@@ -47,4 +46,8 @@ class JsonComposer:
     
 	def editFileJson(self, op, pos, s):
 		return ({"swank": "edit-file", "file-name": self.filename, "args":[{"retain": pos}, { op: s}], "callId" : self.callId()})
+
+jc = JsonComposer()
+jc.filename = "foo.txt"
+jc.rpcSend(json.dumps(jc.initConnectionJson()), False)
 
