@@ -8,7 +8,7 @@ from threading import Thread
 class JsonComposer:
 	def __init__(self):
 		self.host = 'localhost'
-		self.port = int(open('../cccp_fork/agent/dist/cccp.port', 'r').read())
+		self.port = int(open('../cccp/agent/dist/cccp.port', 'r').read())
 		self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.connected = False
 		self.filename = ""
