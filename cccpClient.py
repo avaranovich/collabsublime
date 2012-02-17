@@ -106,25 +106,12 @@ class TrackChangesCore:
 class TrackChangesWhenTypingListener(sublime_plugin.EventListener):
 	def __init__(self):
 		self.timer = None
-		self.pending = 0
+		self.pending = True
 		self.jsonComposer = JsonComposer()
 		self.trackChangesCore = TrackChangesCore()
-
-	def on_new(self, view):
-		getPort()
-		jsonComposer = JsonComposer()
-		jsonComposer.filename = view.file_name()
-		self.jsonComposer.rpcSend(json.dumps(jsonComposer.linkFileJson()), False)
-
-	def on_load(self, view):
-		jsonComposer = JsonComposer()
-		jsonComposer.filename = view.file_name()
-		self.jsonComposer.rpcSend(json.dumps(jsonComposer.linkFileJson()), False)		
 				   
 	def handle_timeout(self, view):
-		self.pending = self.pending - 1
-		if self.pending == 0:
-			self.on_idle(view)
+		self.on_idle(view)
 
 	def on_idle(self, view): 
 		print ""
@@ -133,4 +120,7 @@ class TrackChangesWhenTypingListener(sublime_plugin.EventListener):
 		self.trackChangesCore.track(view)
 
 	def on_post_save(self, view):
-		print "was saved"
+		if self.pending:
+			self.jsonComposer.filename = view.file_name()
+			self.jsonComposer.rpcSend(json.dumps(self.jsonComposer.linkFileJson()), False)
+			self.pending = False
