@@ -8,11 +8,26 @@ import json
 import socket
 from sublime import Region
 from threading import Thread
+import logging
+import sys
+import traceback
+
+#global exception handling
+def global_exception_handler(type, value, traceback):
+	msg = traceback.format_exception(type, value)
+	logging.error(value)
+	logging.exception(traceback)
+	print value
+
+sys.excepthook = global_exception_handler
 
 # global registration for files to be under change tracking
 GLOBAL_REG = {}
 # socket for cccp-agent connection
 AGENT_SOCKET = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+logging.basicConfig(filename='collaboration.log',level=logging.DEBUG, format='%(asctime)s %(message)s')
+logging.debug('socket is created')
+
 
 # composes "swank" JSON to be sent to the cccp agent
 class JsonComposer:
@@ -27,12 +42,19 @@ class JsonComposer:
 	
 	# sends a JSON message over the socket
 	def rpcSend(self, msg, wait):
-		hexed = "0000" + hex(len(msg))[2:]
-		toSend = hexed + msg
-		global AGENT_SOCKET
-		AGENT_SOCKET.send(toSend)
-		print "Sending: " + toSend 
-		return True
+		try:
+			hexed = "0000" + hex(len(msg))[2:]
+			toSend = hexed + msg
+			global AGENT_SOCKET
+			AGENT_SOCKET.send(toSend)
+			print "Sending: " + toSend 
+			return True
+		except Exception as e:
+			logging.error("error while sending json message")
+			msg = '{0} ; {0} ; {0}'.format(e, repr(e), e.message, e.args)
+			logging.error(msg)
+			print msg
+			return False	
 
 	# JSON for connection intialisation with the agent
 	def initConnectionJson(self):
@@ -127,11 +149,17 @@ class TrackChangesWhenTypingListener(sublime_plugin.EventListener):
 	def __init__(self):
 		# connnect to the agent via the global socket
 		global AGENT_SOCKET
-		port = int(open('/Users/tschmorleiz/Projects/101/cccp/agent/dist/cccp.port', 'r').read())
-		AGENT_SOCKET.connect(("localhost", port))
-		self.pending = True
-		self.jsonComposer = JsonComposer()
-		self.trackChangesCore = TrackChangesCore()
+		port = int(open('/Users/varanovich/projects/cccp/agent/dist/cccp.port', 'r').read())
+		try:
+			AGENT_SOCKET.connect(("localhost", port))
+			self.pending = True
+			self.jsonComposer = JsonComposer()
+			self.trackChangesCore = TrackChangesCore()
+		except Exception as e:
+			logging.error("error inside constructor of class TrackChangesWhenTypingListener(sublime_plugin.EventListener")
+			msg = '{0} ; {0} ; {0}'.format(e, repr(e), e.message, e.args)
+			logging.error(msg)
+			print msg
 	
 	# nothing to do
 	def handle_timeout(self, view):
