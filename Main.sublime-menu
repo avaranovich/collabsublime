@@ -1,0 +1,20 @@
+[
+    {
+        "id": "view",
+        "caption": "View",
+        "children":
+        [
+            {
+                "id": "CollabSublime",
+                "caption": "Collaboration",
+                "children":
+                [
+                    {
+                        "caption": "Link current file",
+                        "command": "linkfile"
+                    }
+                ]
+            }
+        ]
+    }
+]
