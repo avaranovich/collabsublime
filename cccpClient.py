@@ -11,6 +11,7 @@ from threading import Thread
 import logging
 import sys
 import traceback
+import asyncore, socket
 
 #global exception handling
 def global_exception_handler(type, value, traceback):
@@ -24,10 +25,41 @@ sys.excepthook = global_exception_handler
 # global registration for files to be under change tracking
 GLOBAL_REG = {}
 # socket for cccp-agent connection
-AGENT_SOCKET = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#AGENT_SOCKET = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
 logging.basicConfig(filename='collaboration.log',level=logging.DEBUG, format='%(asctime)s %(message)s')
 logging.debug('socket is created')
 
+AGENT_SOCKET = None
+
+class AgentClient(asyncore.dispatcher):
+    def __init__(self, host, port):
+    	try:
+        	asyncore.dispatcher.__init__(self)
+        	self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
+        	self.connect( (host, port) )
+        except Exception as e:
+			logging.error("error while creating AgentClient")
+			msg = '{0} ; {0} ; {0}'.format(e, repr(e), e.message, e.args)
+			logging.error(msg)
+			#TODO: notify a user that plugin will not work, because it was not able to set up the connection; perhaps the agent is not running?
+
+    def handle_connect(self):
+    	print "connected to the agent"
+        pass
+
+    def handle_close(self):
+        self.close()
+
+    def handle_read(self):
+        print self.recv(8192)
+	
+	def handle_error(self):
+		print "error"   
+
+    def writable(self):
+    	print "writable"
+        return True
 
 # composes "swank" JSON to be sent to the cccp agent
 class JsonComposer:
@@ -151,7 +183,13 @@ class TrackChangesWhenTypingListener(sublime_plugin.EventListener):
 		global AGENT_SOCKET
 		port = int(open('/Users/varanovich/projects/cccp/agent/dist/cccp.port', 'r').read())
 		try:
-			AGENT_SOCKET.connect(("localhost", port))
+			#-------------TODO: we need to put this into a separate thread
+			# to be able to communicate with this thread, we need to provide callbacks from this UI thread
+			AGENT_SOCKET = AgentClient("localhost", port)
+			#asyncore.loop() <--- this blocks the thread
+			#-----------end TODO--------------------
+
+			#AGENT_SOCKET.connect(("localhost", port)) old sync verions
 			self.pending = True
 			self.jsonComposer = JsonComposer()
 			self.trackChangesCore = TrackChangesCore()
