@@ -50,6 +50,7 @@ jc = JsonComposer()
 jc.filename = "foo.txt"
 print json.dumps(jc.initConnectionJson())
 jc.rpcSend(json.dumps(jc.initConnectionJson()), False)
+jc.rpcSend(json.dumps(jc.unlinkFileJson()), False)
 
 x = raw_input("please type OK to exit: ")
 if(x == "OK"):
