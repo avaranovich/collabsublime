@@ -1,3 +1,4 @@
+// menu items for linking and unlinking a file
 [
     {
         "id": "view",
@@ -12,6 +13,10 @@
                     {
                         "caption": "Link current file",
                         "command": "linkfile"
+                    },
+                    {
+                        "caption": "Unlink current file",
+                        "command": "unlinkfile"
                     }
                 ]
             }
