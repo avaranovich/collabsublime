@@ -1,7 +1,7 @@
 // menu items for linking and unlinking a file
 [
     {
-        "id": "view",
+        "id": "file",
         "caption": "File",
         "children":
         [
