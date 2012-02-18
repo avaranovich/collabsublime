@@ -1,3 +1,3 @@
 [
-    	{ "keys": ["ctrl+alt+l"], "command": "link_file"}
+    	{ "keys": ["ctrl+alt+l"], "command": "linkfile"}
 ]
