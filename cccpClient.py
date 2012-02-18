@@ -11,17 +11,12 @@ from threading import Thread
 
 # global registration for files to be under change tracking
 GLOBAL_REG = {}
+# socket for cccp-agent connection
+AGENT_SOCKET = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # composes "swank" JSON to be sent to the cccp agent
 class JsonComposer:
 	def __init__(self):
-		self.host = 'localhost'
-		self.port = int(open('/Users/tschmorleiz/Projects/101/cccp/agent/dist/cccp.port', 'r').read())
-		self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		self.connected = False
-		#if not self.connected:
-		#	self.s.connect((self.host, self.port)) 
-		#	self.connected = True
 		self.filename = ""
 		self.callid = 0
 
@@ -34,12 +29,9 @@ class JsonComposer:
 	def rpcSend(self, msg, wait):
 		hexed = "0000" + hex(len(msg))[2:]
 		toSend = hexed + msg
+		global AGENT_SOCKET
+		AGENT_SOCKET.send(toSend)
 		print "Sending: " + toSend 
-		#self.s.send(toSend)
-		#if wait:
-		#	data = self.s.recv(1024)
-		#	print 'Received', repr(data)
-		self.s.close()
 		return True
 
 	# JSON for connection intialisation with the agent
@@ -133,12 +125,15 @@ class UnlinkfileCommand(sublime_plugin.TextCommand):
 # event listener for changes
 class TrackChangesWhenTypingListener(sublime_plugin.EventListener):
 	def __init__(self):
-		self.timer = None
+		# connnect to the agent via the global socket
+		global AGENT_SOCKET
+		port = int(open('/Users/tschmorleiz/Projects/101/cccp/agent/dist/cccp.port', 'r').read())
+		AGENT_SOCKET.connect(("localhost", port))
 		self.pending = True
 		self.jsonComposer = JsonComposer()
 		self.trackChangesCore = TrackChangesCore()
 	
-	# nothing to do			   
+	# nothing to do
 	def handle_timeout(self, view):
 		return 
 	
