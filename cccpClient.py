@@ -120,6 +120,16 @@ class LinkfileCommand(sublime_plugin.TextCommand):
 		jsonComposer.filename = self.view.file_name() 
 		jsonComposer.rpcSend(json.dumps(jsonComposer.linkFileJson()), False)
 
+# command class for unlinking a file
+class UnlinkfileCommand(sublime_plugin.TextCommand):
+	def run(self, edit):		
+		global GLOBAL_REG
+		if GLOBAL_REG.has_key(self.view.file_name()):
+			del GLOBAL_REG[self.view.file_name()]
+		jsonComposer = JsonComposer();
+		jsonComposer.filename = self.view.file_name() 
+		jsonComposer.rpcSend(json.dumps(jsonComposer.unlinkFileJson()), False)		
+
 # event listener for changes
 class TrackChangesWhenTypingListener(sublime_plugin.EventListener):
 	def __init__(self):
