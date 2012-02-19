@@ -10,4 +10,4 @@ update-plugin:
 	cp JsonComposer.py ~/Library/Application\ Support/Sublime\ Text\ 2/Packages/Collaboration/ 
 	cp cccpClient.py ~/Library/Application\ Support/Sublime\ Text\ 2/Packages/Collaboration/           
 	cp "Default (OSX).sublime-keymap" ~/Library/Application\ Support/Sublime\ Text\ 2/Packages/Collaboration/ 
-	cp "Main.sublime-menu" ~/Library/Application\ Support/Sublime\ Text\ 2/Packages/Collaboration/
+	cp "Collaboration.sublime-settings" ~/Library/Application\ Support/Sublime\ Text\ 2/Packages/Collaboration/

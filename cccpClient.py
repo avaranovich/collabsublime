@@ -30,13 +30,14 @@ AGENT_CLIENT = None
 
 logging.basicConfig(filename='collaboration.log',level=logging.DEBUG, format='%(asctime)s %(message)s')
 logging.debug('socket is created')
+s = sublime.load_settings("Collaboration.sublime-settings")
 
 # Core class for change tracking
 class TrackChangesCore:  
 	def __init__(self):
 		self.savePoint = False
 		self.oldText = ""
-		self.jsonComposer = JsonComposer()
+		self.jsonComposer = JsonComposer(s.get('host') or "localhost", s.get('port') or 8885)
 		clientThread = Thread(target=self.listen)
 		clientThread.start()
 
@@ -47,7 +48,7 @@ class TrackChangesCore:
   		print "Done! result=%r" % (result)	
 
 	def listen(self):
-		cccpBase = '/Users/tschmorleiz/Projects/101/cccp/agent/dist' #os.environ['CCCP']
+		cccpBase = os.environ['CCCP'] #'/Users/tschmorleiz/Projects/101/cccp/agent/dist' 
 		print 'CCCP agent location:' + cccpBase
 		portFile = cccpBase + '/cccp.port'
 		port = int(open(portFile, 'r').read())
@@ -102,7 +103,7 @@ class LinkfileCommand(sublime_plugin.TextCommand):
 	def run(self, edit):		
 		global GLOBAL_REG
 		GLOBAL_REG[self.view.file_name()] = True
-		jsonComposer = JsonComposer();
+		jsonComposer = JsonComposer(s.get('host') or "localhost", s.get('port') or 8885);
 		jsonComposer.filename = self.view.file_name() 
 		global AGENT_CLIENT	
 		AGENT_CLIENT.sendCommand(json.dumps(jsonComposer.linkFileJson()))
@@ -113,7 +114,7 @@ class UnlinkfileCommand(sublime_plugin.TextCommand):
 		global GLOBAL_REG
 		if GLOBAL_REG.has_key(self.view.file_name()):
 			del GLOBAL_REG[self.view.file_name()]
-		jsonComposer = JsonComposer();
+		jsonComposer = JsonComposer(s.get('host') or "localhost", s.get('port') or 8885);
 		jsonComposer.filename = self.view.file_name() 
 		global AGENT_CLIENT	
 		AGENT_CLIENT.sendCommand(json.dumps(jsonComposer.unlinkFileJson()))	

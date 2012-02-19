@@ -1,11 +1,12 @@
 import sublime
 
-s = sublime.load_settings("Collaboration.sublime-settings")
-
 class JsonComposer:
-	def __init__(self):
+	def __init__(self, host, port):
 		self.filename = ""
 		self.callid = 0
+		print host, port
+		self.host = host
+		self.port = port
     
 	def callId(self):
 		self.callid = self.callid + 1      
@@ -14,10 +15,7 @@ class JsonComposer:
 	def initConnectionJson(self):
 		cid = self.callId()
 		print cid
-		host = s.get('host')
-		port = p.get('port')
-		print host
-		return ({"swank":"init-connection", "args":[{"protocol": "http",  "host": host, "port" : port}], "callId" : self.callId()})
+		return ({"swank":"init-connection", "args":[{"protocol": "http",  "host": self.host, "port" : self.port}], "callId" : self.callId()})
     
 	def linkFileJson(self):
 		return ({"swank":"link-file", "args":[{"id": "id", "file-name": self.filename }], "callId" : self.callId()})
