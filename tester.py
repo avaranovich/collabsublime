@@ -8,6 +8,7 @@ from AgentClient import AgentClient
 from JsonComposer import JsonComposer
 
 def itsdone(result):
+  v = 1	
   print "Done! result=%r" % (result)
 
 def afterInit(agentClient):

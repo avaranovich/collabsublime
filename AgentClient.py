@@ -19,9 +19,6 @@ class AgentClient(asyncore.dispatcher):
 			self.cmd_q = Queue.Queue()
 			# queue stores replies from the agent
 			self.reply_q = Queue.Queue()
-			msg = json.dumps(JsonComposer().initConnectionJson())
-			print msg
-			self.rpcSend(msg)
 			downloader = Thread(target=self.downloadCommands)
 			downloader.start()
 			afterInitCallback(self)

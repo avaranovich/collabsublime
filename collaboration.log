@@ -1,0 +1,10 @@
+2012-02-19 15:07:40,102 socket is created
+2012-02-19 15:33:15,842 socket is created
+2012-02-19 15:33:15,856 error while creating AgentClient
+2012-02-19 15:33:15,856 global name 'Lock' is not defined ; global name 'Lock' is not defined ; global name 'Lock' is not defined
+2012-02-19 15:37:36,455 socket is created
+2012-02-19 15:37:36,456 error while creating AgentClient
+2012-02-19 15:37:36,456 global name 'Lock' is not defined ; global name 'Lock' is not defined ; global name 'Lock' is not defined
+2012-02-19 15:39:02,939 socket is created
+2012-02-19 15:39:02,940 error while creating AgentClient
+2012-02-19 15:39:02,940 release unlocked lock ; release unlocked lock ; release unlocked lock
