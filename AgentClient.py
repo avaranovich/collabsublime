@@ -20,14 +20,16 @@ class AgentClient(asyncore.dispatcher):
 			# queue stores replies from the agent
 			self.reply_q = Queue.Queue()
 			msg = json.dumps(JsonComposer().initConnectionJson())
+			print msg
 			self.rpcSend(msg)
 			downloader = Thread(target=self.downloadCommands)
 			downloader.start()
 			afterInitCallback(self)
 	 	except Exception as e:
 			logging.error("error while creating AgentClient")
-			msg = '{0} ; {0} ; {0}'.format(e, repr(e), e.message, e.args)
+			msg = '{0} ; {0} ; {0} ; {0}'.format(e, repr(e), e.message, e.args)
 			logging.error(msg)
+			print msg
 			# TODO: notify a user that plugin will not work, because it was not able to set up the connection; perhaps the agent is not running?
 
 	def sendCommand(self, msg):
