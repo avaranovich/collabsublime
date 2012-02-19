@@ -57,14 +57,14 @@ def itsdone(result):
   print "Done! result=%r" % (result)
 
 def afterInit(agentClient):
-	print "got it!"
+	print "got initialized agentClient!"
+	jsonComposer = JsonComposer()
+	jsonComposer.filename = "foo.txt"
+	agentClient.sendCommand(json.dumps(jsonComposer.linkFileJson()))
 
 def listen():
 	port = int(open('../cccp/agent/dist/cccp.port', 'r').read())
 	client = AgentClient("localhost", port, afterInit)
-	jsonComposer = JsonComposer()
-	jsonComposer.filename = "foo.txt"
-	client.sendCommand(json.dumps(jsonComposer.linkFileJson()))
 	asyncore.loop()
 
 clientThread = Thread(target=listen)
