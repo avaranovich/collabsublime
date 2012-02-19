@@ -15,6 +15,7 @@ class AgentClient(asyncore.dispatcher):
 			asyncore.dispatcher.__init__(self)
 			self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
 			self.connect( (host, port) )
+			self.buffer = ""
 			# queue stores commands to be send
 			self.cmd_q = Queue.Queue()
 			# queue stores replies from the agent
@@ -69,4 +70,4 @@ class AgentClient(asyncore.dispatcher):
 		print "error"  
 		
 	def writable(self):
-		return True
+		return (len(self.buffer) > 0)
