@@ -48,7 +48,8 @@ class TrackChangesCore:
   		print "Done! result=%r" % (result)	
 
 	def listen(self):
-		cccpBase = os.environ['CCCP']
+		cccpBase = '/Users/tschmorleiz/Projects/101/cccp/agent/dist'
+
 		print 'CCCP agent location:' + cccpBase
 		portFile = cccpBase + '/cccp.port'
 		port = int(open(portFile, 'r').read())
@@ -116,7 +117,7 @@ class TrackChangesWhenTypingListener(sublime_plugin.EventListener):
 			print msg
 	
 	# nothing to do
-	def handle_timeout(self, view):
+	def handle_timeout(self, view): 
 		return 
 	
 	# nothing to do
