@@ -36,7 +36,6 @@ class TrackChangesCore:
 	def __init__(self):
 		self.savePoint = False
 		self.oldText = ""
-		self.client = None
 		self.jsonComposer = JsonComposer()
 		clientThread = Thread(target=self.listen)
 		clientThread.start()
@@ -49,11 +48,11 @@ class TrackChangesCore:
 
 	def listen(self):
 		cccpBase = '/Users/tschmorleiz/Projects/101/cccp/agent/dist'
-
 		print 'CCCP agent location:' + cccpBase
 		portFile = cccpBase + '/cccp.port'
 		port = int(open(portFile, 'r').read())
-		self.client = AgentClient("localhost", port, self.afterInit, self.itsdone)
+		global AGENT_CLIENT
+		AGENT_CLIENT = AgentClient("localhost", port, self.afterInit, self.itsdone)
 		asyncore.loop()
 		
 	# computes diffs between s1 and s2	 
@@ -72,7 +71,8 @@ class TrackChangesCore:
 		print "got some diffs. Sending"
 		for d in diffs: 
 			if d[0] != d[1]:
-				self.client.sendCommand(json.dumps(self.jsonComposer.editFileJson("insert", d[0], view.substr(Region(d[0],d[1])))))	
+				global AGENT_CLIENT
+				AGENT_CLIENT.sendCommand(json.dumps(self.jsonComposer.editFileJson("insert", d[0], view.substr(Region(d[0],d[1])))))	
 		self.oldText = currentText;		
 			  
 	# gets diffs		  
@@ -97,6 +97,27 @@ class TrackChangesCore:
 		self.diff_thread = Thread(target=self.track_sync, args=(view, currentText, filename))
 		self.diff_thread.start()
 	
+# command class for linking a file
+class LinkfileCommand(sublime_plugin.TextCommand):
+	def run(self, edit):		
+		global GLOBAL_REG
+		GLOBAL_REG[self.view.file_name()] = True
+		jsonComposer = JsonComposer();
+		jsonComposer.filename = self.view.file_name() 
+		global AGENT_CLIENT	
+		AGENT_CLIENT.sendCommand(json.dumps(jsonComposer.linkFileJson()))
+
+# command class for unlinking a file
+class UnlinkfileCommand(sublime_plugin.TextCommand):
+	def run(self, edit):		
+		global GLOBAL_REG
+		if GLOBAL_REG.has_key(self.view.file_name()):
+			del GLOBAL_REG[self.view.file_name()]
+		jsonComposer = JsonComposer();
+		jsonComposer.filename = self.view.file_name() 
+		global AGENT_CLIENT	
+		AGENT_CLIENT.sendCommand(json.dumps(jsonComposer.unlinkFileJson()))	
+
 
 # event listener for changes
 class TrackChangesWhenTypingListener(sublime_plugin.EventListener):
