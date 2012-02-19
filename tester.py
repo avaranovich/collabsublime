@@ -4,8 +4,6 @@ import os
 import json
 import socket, asyncore
 from threading import Thread
-from AgentClient import AgentClient
-
 
 class JsonComposer:
 	def __init__(self):
@@ -53,18 +51,20 @@ class JsonComposer:
 #print json.dumps(jc.initConnectionJson())
 #jc.rpcSend(json.dumps(jc.initConnectionJson()), False)
 #jc.rpcSend(json.dumps(jc.unlinkFileJson()), False)
+from AgentClient import *
 
 def itsdone(result):
   print "Done! result=%r" % (result)
 
-def afterInit(clientAgent):
-	#here we have the initialized clientAgent
-	print "afterInit! result=%r" % (result)	
-  
+def afterInit(agentClient):
+	print "got it!"
 
 def listen():
 	port = int(open('../cccp/agent/dist/cccp.port', 'r').read())
-	client = AgentClient("localhost", port, callback=afterInit)
+	client = AgentClient("localhost", port, afterInit)
+	jsonComposer = JsonComposer()
+	jsonComposer.filename = "foo.txt"
+	client.sendCommand(json.dumps(jsonComposer.linkFileJson()))
 	asyncore.loop()
 
 clientThread = Thread(target=listen)
@@ -73,6 +73,5 @@ clientThread.start()
 #client.sendRpc(data, callback=itsdone)
 
 x = raw_input("please type OK to exit: ")
-if(x == "OK"):
-	exit(0)
+exit(0)
 
