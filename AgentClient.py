@@ -46,15 +46,18 @@ class AgentClient(asyncore.dispatcher):
 	def rpcSend(self,msg):
 		hexed = "0000" + hex(len(msg))[2:]
 		toSend = hexed + msg
-		self.buffer = toSend
+		#self.buffer = toSend
+		print "sending"
+		self.send(toSend)
 
 	def handle_connect(self):
 		print "connected to the agent"
 		pass
 		
 	def handle_write(self):
-		sent = self.send(self.buffer)
-		self.buffer = self.buffer[sent:]
+		#sent = self.send(self.buffer)
+		#self.buffer = self.buffer[sent:]
+		pass
 
 	def handle_close(self):
 		print "closed"
