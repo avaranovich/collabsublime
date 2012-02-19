@@ -31,26 +31,15 @@ class AgentClient(asyncore.dispatcher):
 			# TODO: notify a user that plugin will not work, because it was not able to set up the connection; perhaps the agent is not running?
 
 	def sendCommand(self, msg):
-		lock = Lock()
-		try:
-			lock.acquire()
-			self.cmd_q.put(msg)
-			lock.release()
-		finally:
-			lock.release()
+		self.cmd_q.put(msg)
 
 	def downloadCommands(self):
 		print "Command downloader started"
 		while True:
 			print "Command downloader waiting for new message"
-			try:
-				lock = Lock()
-				lock.acquire()
-				msg = self.cmd_q.get()
-				self.rpcSend(msg)
-			finally:		
-				lock.release()
-
+			msg = self.cmd_q.get()
+			self.rpcSend(msg)	
+			print "Command sent " + msg
 			self.cmd_q.task_done()
 
 	# hex message and add to buffer
@@ -80,4 +69,4 @@ class AgentClient(asyncore.dispatcher):
 		print "error"  
 		
 	def writable(self):
-		return (len(self.buffer) > 0)
+		return True
