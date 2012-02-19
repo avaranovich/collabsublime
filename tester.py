@@ -18,7 +18,7 @@ def afterInit(agentClient):
 
 def listen():
 	port = int(open('../cccp/agent/dist/cccp.port', 'r').read())
-	client = AgentClient("localhost", port, afterInit)
+	client = AgentClient("localhost", port, afterInit, itsdone)
 	asyncore.loop()
 
 clientThread = Thread(target=listen)

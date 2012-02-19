@@ -1,6 +1,6 @@
 import asyncore, socket, json
 import Queue
-from threading import Thread
+from threading import Thread, Lock
 import logging
 from JsonComposer import JsonComposer
 
@@ -9,7 +9,8 @@ logging.debug('socket is created')
 
 
 class AgentClient(asyncore.dispatcher):
-	def __init__(self, host, port, callback):
+	def __init__(self, host, port, afterInitCallback, afterReceivedCallback):
+		self.afterReceived = afterReceivedCallback
 		try:
 			asyncore.dispatcher.__init__(self)
 			self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -22,7 +23,7 @@ class AgentClient(asyncore.dispatcher):
 			self.rpcSend(msg)
 			downloader = Thread(target=self.downloadCommands)
 			downloader.start()
-			callback(self)
+			afterInitCallback(self)
 	 	except Exception as e:
 			logging.error("error while creating AgentClient")
 			msg = '{0} ; {0} ; {0}'.format(e, repr(e), e.message, e.args)
@@ -30,14 +31,26 @@ class AgentClient(asyncore.dispatcher):
 			# TODO: notify a user that plugin will not work, because it was not able to set up the connection; perhaps the agent is not running?
 
 	def sendCommand(self, msg):
-		self.cmd_q.put(msg)
+		lock = Lock()
+		try:
+			lock.acquire()
+			self.cmd_q.put(msg)
+			lock.release()
+		finally:
+			lock.release()
 
 	def downloadCommands(self):
 		print "Command downloader started"
 		while True:
 			print "Command downloader waiting for new message"
-			msg = self.cmd_q.get()
-			self.rpcSend(msg)
+			try:
+				lock = Lock()
+				lock.acquire()
+				msg = self.cmd_q.get()
+				self.rpcSend(msg)
+			finally:		
+				lock.release()
+
 			self.cmd_q.task_done()
 
 	# hex message and add to buffer
@@ -59,7 +72,9 @@ class AgentClient(asyncore.dispatcher):
 		self.close()
 
 	def handle_read(self):
-		print self.recv(8192)
+		data = self.recv(8192)
+		print data
+		self.afterReceived(data)
 	
 	def handle_error(self):
 		print "error"  
