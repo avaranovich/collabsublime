@@ -17,7 +17,6 @@ import asyncore
 
 #global exception handling
 def global_exception_handler(type, value, traceback):
-	msg = traceback.format_exception(type, value)
 	logging.error(value)
 	logging.exception(traceback)
 	print value
@@ -49,7 +48,10 @@ class TrackChangesCore:
   		print "Done! result=%r" % (result)	
 
 	def listen(self):
-		port = int(open('/Users/tschmorleiz/Projects/101/cccp/agent/dist/cccp.port', 'r').read())
+		cccpBase = os.environ['CCCP']
+		print 'CCCP agent location:' + cccpBase
+		portFile = cccpBase + '/cccp.port'
+		port = int(open(portFile, 'r').read())
 		self.client = AgentClient("localhost", port, self.afterInit, self.itsdone)
 		asyncore.loop()
 		
