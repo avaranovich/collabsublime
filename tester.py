@@ -2,8 +2,10 @@ import difflib
 import functools
 import os
 import json
-import socket
+import socket, asyncore
 from threading import Thread
+from AgentClient import AgentClient
+
 
 class JsonComposer:
 	def __init__(self):
@@ -46,11 +48,25 @@ class JsonComposer:
 	def editFileJson(self, op, pos, s):
 		return ({"swank": "edit-file", "file-name": self.filename, "args":[{"retain": pos}, { op: s}], "callId" : self.callId()})
 
-jc = JsonComposer()
-jc.filename = "foo.txt"
-print json.dumps(jc.initConnectionJson())
-jc.rpcSend(json.dumps(jc.initConnectionJson()), False)
-jc.rpcSend(json.dumps(jc.unlinkFileJson()), False)
+#old sync verion
+#jc = JsonComposer()
+#jc.filename = "foo.txt"
+#print json.dumps(jc.initConnectionJson())
+#jc.rpcSend(json.dumps(jc.initConnectionJson()), False)
+#jc.rpcSend(json.dumps(jc.unlinkFileJson()), False)
+
+def itsdone(result):
+  print "Done! result=%r" % (result)
+
+def listen():
+	port = int(open('../cccp/agent/dist/cccp.port', 'r').read())
+	client = AgentClient("localhost", port)
+	asyncore.loop()
+
+clientThread = Thread(target=listen)
+clientThread.start()
+
+#client.sendRpc(data, callback=itsdone)
 
 x = raw_input("please type OK to exit: ")
 if(x == "OK"):

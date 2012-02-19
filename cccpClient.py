@@ -11,7 +11,6 @@ from threading import Thread
 import logging
 import sys
 import traceback
-import asyncore, socket
 
 #global exception handling
 def global_exception_handler(type, value, traceback):
@@ -31,35 +30,6 @@ logging.basicConfig(filename='collaboration.log',level=logging.DEBUG, format='%(
 logging.debug('socket is created')
 
 AGENT_SOCKET = None
-
-class AgentClient(asyncore.dispatcher):
-    def __init__(self, host, port):
-    	try:
-        	asyncore.dispatcher.__init__(self)
-        	self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
-        	self.connect( (host, port) )
-        except Exception as e:
-			logging.error("error while creating AgentClient")
-			msg = '{0} ; {0} ; {0}'.format(e, repr(e), e.message, e.args)
-			logging.error(msg)
-			#TODO: notify a user that plugin will not work, because it was not able to set up the connection; perhaps the agent is not running?
-
-    def handle_connect(self):
-    	print "connected to the agent"
-        pass
-
-    def handle_close(self):
-        self.close()
-
-    def handle_read(self):
-        print self.recv(8192)
-	
-	def handle_error(self):
-		print "error"   
-
-    def writable(self):
-    	print "writable"
-        return True
 
 # composes "swank" JSON to be sent to the cccp agent
 class JsonComposer:
