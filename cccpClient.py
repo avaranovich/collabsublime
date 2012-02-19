@@ -47,7 +47,7 @@ class TrackChangesCore:
   		print "Done! result=%r" % (result)	
 
 	def listen(self):
-		cccpBase = os.environ['CCCP']
+		cccpBase = '/Users/tschmorleiz/Projects/101/cccp/agent/dist' #os.environ['CCCP']
 		print 'CCCP agent location:' + cccpBase
 		portFile = cccpBase + '/cccp.port'
 		port = int(open(portFile, 'r').read())
@@ -71,7 +71,7 @@ class TrackChangesCore:
 		print "got some diffs. Sending"
 		for d in diffs: 
 			if d[0] != d[1]:
-				global AGENT_CLIENT
+				global AGENT_CLIENT 
 				AGENT_CLIENT.sendCommand(json.dumps(self.jsonComposer.editFileJson("insert", d[0], view.substr(Region(d[0],d[1])))))	
 		self.oldText = currentText;		
 			  
