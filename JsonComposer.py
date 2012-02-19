@@ -13,8 +13,6 @@ class JsonComposer:
 		return self.callid
 
 	def initConnectionJson(self):
-		cid = self.callId()
-		print cid
 		return ({"swank":"init-connection", "args":[{"protocol": "http",  "host": self.host, "port" : self.port}], "callId" : self.callId()})
     
 	def linkFileJson(self):
