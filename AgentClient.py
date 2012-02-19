@@ -2,15 +2,16 @@ import asyncore, socket, json
 import Queue
 
 class AgentClient(asyncore.dispatcher):
-	def __init__(self, host, port):
+	def __init__(self, host, port, callback):
 		try:
 			asyncore.dispatcher.__init__(self)
 			self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
 			self.connect( (host, port) )
+			callback(self)
 			#queue stores commands to be send
-			self.cmd_q = Queue.Queue()
+			#self.cmd_q = Queue()
 			#queue stores replies from the agent
-        	self.reply_q = Queue.Queue()
+        	#self.reply_q =Queue()
 			msg = json.dumps({"swank":"init-connection", "args":[{"protocol": "http", "host": "localhost", "port" : 8585}], "callId" : 1})
 			hexed = "0000" + hex(len(msg))[2:]
 			toSend = hexed + msg

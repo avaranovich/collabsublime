@@ -20,8 +20,7 @@ class JsonComposer:
 		self.callid = self.callid + 1      
 		return self.callid
 	
-    
-	def rpcSend(self, msg, wait):
+   	def rpcSend(self, msg, wait):
 		if not self.connected:
 			self.s.connect((self.host, self.port)) 
 			self.connected = True
@@ -58,9 +57,14 @@ class JsonComposer:
 def itsdone(result):
   print "Done! result=%r" % (result)
 
+def afterInit(clientAgent):
+	#here we have the initialized clientAgent
+	print "afterInit! result=%r" % (result)	
+  
+
 def listen():
 	port = int(open('../cccp/agent/dist/cccp.port', 'r').read())
-	client = AgentClient("localhost", port)
+	client = AgentClient("localhost", port, callback=afterInit)
 	asyncore.loop()
 
 clientThread = Thread(target=listen)
