@@ -48,10 +48,19 @@ class TrackChangesCore:
 		print "got initialized agentClient!"
 		agentClient.sendCommand(json.dumps(self.jsonComposer.initConnectionJson()))
 
+	def bar(self):
+		print sublime.active_window()
+
+	def foo(self):
+		print "getting window"
+		sublime.set_timeout(self.bar, 30)
+
 	# callback after command was sent
 	def itsdone(self, result):
   		print "Read from agent! result=%r" % (result)	
-  		
+  		sublime.set_timeout(self.bar, 30)
+
+  		# 
   	# sets up AgentClient and listens
 	def listen(self):
 		cccpBase =  os.environ['CCCP'] 
@@ -72,7 +81,7 @@ class TrackChangesCore:
 				diffs.append((prev[1], u[0]))
 				prev = u
 		return diffs
-
+ 
 	# processes diffs
 	def processDiffs(self, view, diffs, currentText):
 		print "got some diffs. Sending"
