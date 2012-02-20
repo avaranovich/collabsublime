@@ -29,10 +29,7 @@ GLOBAL_REG = {}
 
 AGENT_CLIENT = None
 
-WINDOW = None
-
-# global view set
-VIEWS = {}
+INSERTING = False
 
 logging.basicConfig(filename='collaboration.log',level=logging.DEBUG, format='%(asctime)s %(message)s')
 logging.debug('socket is created')
@@ -54,42 +51,26 @@ class TrackChangesCore:
 		print "got initialized agentClient!"
 		agentClient.sendCommand(json.dumps(self.jsonComposer.initConnectionJson()))
 
-	def runc(self, result):
+	def insertedit(self, result):
+		global INSERTING
+		INSERTING = True
 		unhex = result[6:]
 		jsonr = json.loads(unhex)
 		filename = jsonr[1]['value']
 		offset = int(jsonr[2][5]['value'])
 		text = str(jsonr[2][3]['value'])
-		print offset
+		print 'Inserting', text, 'at', offset
 		for v in sublime.active_window().views():
 			if v.file_name() == filename:
 				edit = v.begin_edit()
 				v.insert(edit, offset, text)
 				v.end_edit(edit)
+		INSERTING = False
 			
 
 	# callback after command was sent
-	def itsdone(self, result):
-
-		sublime.set_timeout(functools.partial(self.runc, result),1)
-		#for v in sublime.active_window().views():
-		#	print v
-
-		#global VIEWS
-		#if VIEWS.has_key(filename):
-		#	print VIEWS[filename]
-		#	myview = VIEWS[filename]
-		#	offset = jsonr[2][5]['value']
-		#	text = jsonr[2][3]['value']
-		#	print text, " ", offset, " ", myview
-		#	print myview.substr(Region(0, myview.size()))
-		#	print "I got after text!"
-		#	edit = myview.begin_edit()
-		#	myview.insert(edit, int(offset), str(text))
-		#	myview.end_edit(edit)
-			
-
-  		#print "Read from agent! result=%r" % (result)	
+	def itsdone(self, result): 
+		sublime.set_timeout(functools.partial(self.insertedit, result),1)
   		
   	# sets up AgentClient and listens
 	def listen(self):
@@ -148,17 +129,11 @@ class LinkfileCommand(sublime_plugin.TextCommand):
 	def run(self, edit):		
 		global GLOBAL_REG
 		GLOBAL_REG[self.view.file_name()] = True
-		global VIEWS
-		VIEWS[self.view.file_name()] = self.view
 		jsonComposer = JsonComposer(s.get('host') or "localhost", s.get('port') or 8885);
 		jsonComposer.filename = self.view.file_name() 
 		global AGENT_CLIENT	
 		AGENT_CLIENT.sendCommand(json.dumps(jsonComposer.linkFileJson()))
 
-# command class for linking a file
-class ApplychangesCommand(sublime_plugin.TextCommand):
-	def run(self, edit):		
-		print "Hallo!"
 
 # command class for unlinking a file
 class UnlinkfileCommand(sublime_plugin.TextCommand):
@@ -166,8 +141,6 @@ class UnlinkfileCommand(sublime_plugin.TextCommand):
 		global GLOBAL_REG
 		if GLOBAL_REG.has_key(self.view.file_name()):
 			del GLOBAL_REG[self.view.file_name()]
-			global VIEWS
-			del VIEWS[self.view.file_name()]
 		jsonComposer = JsonComposer(s.get('host') or "localhost", s.get('port') or 8885);
 		jsonComposer.filename = self.view.file_name() 
 		global AGENT_CLIENT	
@@ -202,6 +175,9 @@ class TrackChangesWhenTypingListener(sublime_plugin.EventListener):
    
     # checks if file is under change tracking and calls change tracker
 	def on_modified(self, view):
+		global INSERTING
+		if INSERTING:
+			return
 		global GLOBAL_REG
 		if GLOBAL_REG.has_key(view.file_name()):
 			self.trackChangesCore.track(view) 
