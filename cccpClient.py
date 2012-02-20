@@ -57,7 +57,7 @@ class TrackChangesCore:
 		unhex = result[6:]
 		jsonr = json.loads(unhex)
 		filename = jsonr[1]['value']
-		offset = int(jsonr[2][2]['value'])
+		offset = int(jsonr[2][1]['value'])
 		text = str(jsonr[2][3]['value'])
 		print 'Inserting', text, 'at', offset
 		for v in sublime.active_window().views():
