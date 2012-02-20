@@ -52,7 +52,8 @@ class TrackChangesCore:
 		agentClient.sendCommand(json.dumps(self.jsonComposer.initConnectionJson()))
 
 	def insertedit(self, result):
-		lock = Lock().acquire
+		lock = Lock()
+		lock.acquire()
 		global INSERTING
 		INSERTING = True
 		unhex = result[6:]
