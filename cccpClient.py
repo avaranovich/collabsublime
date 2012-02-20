@@ -7,7 +7,7 @@ import os
 import sublime_plugin
 import json
 import socket
-from threading import Thread
+from threading import Thread, Lock
 from sublime import Region
 import logging
 import sys
@@ -52,6 +52,7 @@ class TrackChangesCore:
 		agentClient.sendCommand(json.dumps(self.jsonComposer.initConnectionJson()))
 
 	def insertedit(self, result):
+		lock = Lock().acquire
 		global INSERTING
 		INSERTING = True
 		unhex = result[6:]
@@ -66,6 +67,7 @@ class TrackChangesCore:
 				v.insert(edit, offset, text)
 				v.end_edit(edit)
 		INSERTING = False
+		lock.release()
 			
 
 	# callback after command was sent
