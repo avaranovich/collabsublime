@@ -49,7 +49,8 @@ class TrackChangesCore:
   		print "Done! result=%r" % (result)	
   		
 	def listen(self):
-		cccpBase =  '/Users/tschmorleiz/Projects/101/cccp/agent/dist' 
+		#cccpBase =  '/Users/tschmorleiz/Projects/101/cccp/agent/dist' 
+		cccpBase = os.environ['CCCP']
 		print 'CCCP agent location:' + cccpBase
 		portFile = cccpBase + '/cccp.port'
 		port = int(open(portFile, 'r').read())
