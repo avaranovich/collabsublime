@@ -92,7 +92,7 @@ class TrackChangesCore:
 				diffs.append((prev[1], u[0]))
 				prev = u
 		return diffs
-
+ 
 	# processes diffs
 	def processDiffs(self, view, diffs, currentText):
 		print "got some diffs. Sending"
