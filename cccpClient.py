@@ -178,9 +178,11 @@ class TrackChangesWhenTypingListener(sublime_plugin.EventListener):
    
     # checks if file is under change tracking and calls change tracker
 	def on_modified(self, view):
+		lock = Lock()
+		lock.acquire()
 		global INSERTING
-		if INSERTING:
-			return
-		global GLOBAL_REG
-		if GLOBAL_REG.has_key(view.file_name()):
-			self.trackChangesCore.track(view) 
+		if INSERTING == False :
+			global GLOBAL_REG
+			if GLOBAL_REG.has_key(view.file_name()):
+				self.trackChangesCore.track(view) 
+		lock.release()		
