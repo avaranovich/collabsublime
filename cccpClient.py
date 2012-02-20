@@ -7,8 +7,8 @@ import os
 import sublime_plugin
 import json
 import socket
-from sublime import Region
 from threading import Thread
+from sublime import Region
 import logging
 import sys
 import traceback
@@ -29,6 +29,8 @@ GLOBAL_REG = {}
 
 AGENT_CLIENT = None
 
+INSERTING = False
+
 logging.basicConfig(filename='collaboration.log',level=logging.DEBUG, format='%(asctime)s %(message)s')
 logging.debug('socket is created')
 s = sublime.load_settings("Collaboration.sublime-settings")
@@ -38,6 +40,7 @@ class TrackChangesCore:
 	def __init__(self):
 		self.savePoint = False
 		self.oldText = ""
+		self.window = None
 		self.jsonComposer = JsonComposer(s.get('host') or "localhost", s.get('port') or 8885)
 		# start listening in new thread
 		clientThread = Thread(target=self.listen)
@@ -48,19 +51,27 @@ class TrackChangesCore:
 		print "got initialized agentClient!"
 		agentClient.sendCommand(json.dumps(self.jsonComposer.initConnectionJson()))
 
-	def bar(self):
-		print sublime.active_window()
-
-	def foo(self):
-		print "getting window"
-		sublime.set_timeout(self.bar, 30)
+	def insertedit(self, result):
+		global INSERTING
+		INSERTING = True
+		unhex = result[6:]
+		jsonr = json.loads(unhex)
+		filename = jsonr[1]['value']
+		offset = int(jsonr[2][5]['value'])
+		text = str(jsonr[2][3]['value'])
+		print 'Inserting', text, 'at', offset
+		for v in sublime.active_window().views():
+			if v.file_name() == filename:
+				edit = v.begin_edit()
+				v.insert(edit, offset, text)
+				v.end_edit(edit)
+		INSERTING = False
+			
 
 	# callback after command was sent
-	def itsdone(self, result):
-  		print "Read from agent! result=%r" % (result)	
-  		sublime.set_timeout(self.bar, 30)
-
-  		# 
+	def itsdone(self, result): 
+		sublime.set_timeout(functools.partial(self.insertedit, result),1)
+  		
   	# sets up AgentClient and listens
 	def listen(self):
 		cccpBase =  os.environ['CCCP'] 
@@ -123,6 +134,7 @@ class LinkfileCommand(sublime_plugin.TextCommand):
 		global AGENT_CLIENT	
 		AGENT_CLIENT.sendCommand(json.dumps(jsonComposer.linkFileJson()))
 
+
 # command class for unlinking a file
 class UnlinkfileCommand(sublime_plugin.TextCommand):
 	def run(self, edit):		
@@ -163,6 +175,9 @@ class TrackChangesWhenTypingListener(sublime_plugin.EventListener):
    
     # checks if file is under change tracking and calls change tracker
 	def on_modified(self, view):
+		global INSERTING
+		if INSERTING:
+			return
 		global GLOBAL_REG
 		if GLOBAL_REG.has_key(view.file_name()):
 			self.trackChangesCore.track(view) 
