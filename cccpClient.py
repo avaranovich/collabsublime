@@ -3,6 +3,7 @@ import difflib
 import functools
 import os
 import sublime
+import os
 import sublime_plugin
 import json
 import socket
@@ -38,20 +39,23 @@ class TrackChangesCore:
 		self.savePoint = False
 		self.oldText = ""
 		self.jsonComposer = JsonComposer(s.get('host') or "localhost", s.get('port') or 8885)
+		# start listening in new thread
 		clientThread = Thread(target=self.listen)
 		clientThread.start()
 
+	# callback, after intialization send init-connection command to agent
 	def afterInit(self, agentClient):
 		print "got initialized agentClient!"
 		agentClient.sendCommand(json.dumps(self.jsonComposer.initConnectionJson()))
 
+	# callback after command was sent
 	def itsdone(self, result):
-  		print "Done! result=%r" % (result)	
+  		print "Read from agent! result=%r" % (result)	
   		
+  	# sets up AgentClient and listens
 	def listen(self):
-		#cccpBase =  '/Users/tschmorleiz/Projects/101/cccp/agent/dist' 
-		cccpBase = os.environ['CCCP']
-		print 'CCCP agent location:' + cccpBase
+		cccpBase =  os.environ['CCCP'] 
+		print 'CCCP agent location: ' + cccpBase
 		portFile = cccpBase + '/cccp.port'
 		port = int(open(portFile, 'r').read())
 		global AGENT_CLIENT
@@ -150,4 +154,6 @@ class TrackChangesWhenTypingListener(sublime_plugin.EventListener):
    
     # checks if file is under change tracking and calls change tracker
 	def on_modified(self, view):
-		self.trackChangesCore.track(view) 
+		global GLOBAL_REG
+		if GLOBAL_REG.has_key(view.file_name()):
+			self.trackChangesCore.track(view) 

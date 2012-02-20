@@ -10,6 +10,8 @@ logging.debug('socket is created')
 class AgentClient(asyncore.dispatcher):
 	def __init__(self, host, port, afterInitCallback, afterReceivedCallback):
 		self.afterReceived = afterReceivedCallback
+		self.host = host
+		self.port = port
 		try:
 			asyncore.dispatcher.__init__(self)
 			self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -19,8 +21,10 @@ class AgentClient(asyncore.dispatcher):
 			self.cmd_q = Queue.Queue()
 			# queue stores replies from the agent
 			self.reply_q = Queue.Queue()
+			# start downloader in new thread
 			downloader = Thread(target=self.downloadCommands)
 			downloader.start()
+			# inform  via callback
 			afterInitCallback(self)
 	 	except Exception as e:
 			logging.error("error while creating AgentClient")
@@ -29,13 +33,15 @@ class AgentClient(asyncore.dispatcher):
 			print msg
 			# TODO: notify a user that plugin will not work, because it was not able to set up the connection; perhaps the agent is not running?
 
+    # sends command by putting it in the queue
 	def sendCommand(self, msg):
 		self.cmd_q.put(msg)
 
+    # gets command one at a time and passes it to rpcSend()
 	def downloadCommands(self):
 		print "Command downloader started"
 		while True:
-			print "Command downloader waiting for new message"
+			print "Command downloader waiting for new message..."
 			msg = self.cmd_q.get()
 			self.rpcSend(msg)	
 			print "Command sent " + msg
@@ -46,11 +52,17 @@ class AgentClient(asyncore.dispatcher):
 		hexed = "0000" + hex(len(msg))[2:]
 		toSend = hexed + msg
 		#self.buffer = toSend
-		print "sending"
-		self.send(toSend)
+		print "Sending..."
+		try:	
+			self.send(toSend)
+		except Exception as e:
+			logging.error("Error while sending message to agent " + host + ":" + port)
+			emsg = '{0} ; {0} ; {0} ; {0}'.format(e, repr(e), e.message, e.args)
+			logging.error(emsg)
+			print emsg
 
 	def handle_connect(self):
-		print "connected to the agent"
+		print "Connected to the agent"
 		pass
 		
 	def handle_write(self):
@@ -59,16 +71,15 @@ class AgentClient(asyncore.dispatcher):
 		pass
 
 	def handle_close(self):
-		print "closed"
+		print "Connection closed"
 		self.close()
 
 	def handle_read(self):
 		data = self.recv(8192)
-		print data
 		self.afterReceived(data)
 
 	def handle_error(self):
-		print "error"  
+		print "Error!"  
 		
 	def writable(self):
 		return (len(self.buffer) > 0)
