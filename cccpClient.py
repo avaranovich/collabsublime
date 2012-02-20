@@ -126,6 +126,7 @@ class TrackChangesCore:
 		filename = view.file_name()
 		self.diff_thread = Thread(target=self.track_sync, args=(view, currentText, filename))
 		self.diff_thread.start()
+		self.diff_thread.join()
 	
 # command class for linking a file
 class LinkfileCommand(sublime_plugin.TextCommand):
