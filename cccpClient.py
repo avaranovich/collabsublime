@@ -68,6 +68,7 @@ class TrackChangesCore:
 				v.insert(edit, offset, text)
 				v.end_edit(edit)
 		INSERTING = False
+		self.oldText = view.substr(Region(0, view.size()))
 		lock.release()
 			
 
