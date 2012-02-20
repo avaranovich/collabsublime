@@ -22,4 +22,4 @@ class JsonComposer:
 		return ({"swank":"unlink-file", "args":[{ "file-name": self.filename }], "callId" : self.callId()})
     
 	def editFileJson(self, op, posf, posb,  s):
-		return ({"swank": "edit-file", "file-name": self.filename, "args":[{"retain": posb}, { op: s}, {"retain": posf}], "callId" : self.callId()})
+		return ({"swank": "edit-file", "file-name": self.filename, "args":[{"retain": posf}, { op: s}, {"retain": posb}], "callId" : self.callId()})
