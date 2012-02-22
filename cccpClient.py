@@ -143,7 +143,7 @@ class LinkfileCommand(sublime_plugin.TextCommand):
 		GLOBAL_REG[self.view.file_name()] = True
 		jsonComposer = JsonComposer(s.get('host') or "localhost", s.get('port') or 8885)
 		global AGENT_CLIENT	
-		AGENT_CLIENT.sendCommand(json.dumps(jsonComposer.linkFileJson(self.view.file_name(), fileId)))
+		AGENT_CLIENT.sendCommand(json.dumps(jsonComposer.linkFileJson(fileId, self.view.file_name())))
 
 	def	description(self):
 		return "Links the current file to the cccp agent. Running this command will eventually insert preceding edits."	
