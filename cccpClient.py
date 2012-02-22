@@ -138,8 +138,7 @@ class LinkfileCommand(sublime_plugin.TextCommand):
 		# get fileId from user
 		self.view.window().show_input_panel("Enter fileId to link to:", "", self.on_done, None, None)
 		
-	def on_done(self, input):
-		fileId = int(input)
+	def on_done(self, fileId):
 		global GLOBAL_REG
 		GLOBAL_REG[self.view.file_name()] = True
 		jsonComposer = JsonComposer(s.get('host') or "localhost", s.get('port') or 8885)
