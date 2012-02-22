@@ -24,7 +24,7 @@ def global_exception_handler(type, value, traceback):
 
 sys.excepthook = global_exception_handler
 
-# global registration for files to be under change tracking
+# global registration for files to be under change tracking, this stores an associated JsonComposer
 GLOBAL_REG = {}
 
 AGENT_CLIENT = None
@@ -106,7 +106,7 @@ class TrackChangesCore:
 		for d in diffs: 
 			if d[0] != d[1]:
 				global AGENT_CLIENT 
-				AGENT_CLIENT.sendCommand(json.dumps(self.jsonComposer.editFileJson("insert", d[0], view.size()-d[0] , view.substr(Region(d[0],d[1])))))	
+				AGENT_CLIENT.sendCommand(json.dumps(self.jsonComposer.editFileJson(view.file_name(), "insert", d[0], view.size()-d[0] , view.substr(Region(d[0],d[1])))))	
 		self.oldText = currentText;		
 			  
 	# gets diffs		  
@@ -115,7 +115,6 @@ class TrackChangesCore:
 			if not self.savePoint:   
 				with open(filename, "rU") as f:
 					originalText = f.read().decode('utf8')
-				self.jsonComposer.filename = filename
 				self.oldText = originalText
 				self.savePoint = True       
 			diffs = self.get_diff(self.oldText, currentText)    
@@ -134,14 +133,21 @@ class TrackChangesCore:
 	
 # command class for linking a file
 class LinkfileCommand(sublime_plugin.TextCommand):
+
 	def run(self, edit):		
+		# get fileId from user
+		self.view.window().show_input_panel("Enter fileId to link to:", "", self.on_done, None, None)
+		
+	def on_done(self, input):
+		fileId = int(input)
 		global GLOBAL_REG
 		GLOBAL_REG[self.view.file_name()] = True
-		jsonComposer = JsonComposer(s.get('host') or "localhost", s.get('port') or 8885);
-		jsonComposer.filename = self.view.file_name() 
+		jsonComposer = JsonComposer(s.get('host') or "localhost", s.get('port') or 8885)
 		global AGENT_CLIENT	
-		AGENT_CLIENT.sendCommand(json.dumps(jsonComposer.linkFileJson()))
+		AGENT_CLIENT.sendCommand(json.dumps(jsonComposer.linkFileJson(self.view.file_name(), fileId)))
 
+	def	description(self):
+		return "Links the current file to the cccp agent. Running this command will eventually insert preceding edits."	
 
 # command class for unlinking a file
 class UnlinkfileCommand(sublime_plugin.TextCommand):
@@ -150,9 +156,11 @@ class UnlinkfileCommand(sublime_plugin.TextCommand):
 		if GLOBAL_REG.has_key(self.view.file_name()):
 			del GLOBAL_REG[self.view.file_name()]
 		jsonComposer = JsonComposer(s.get('host') or "localhost", s.get('port') or 8885);
-		jsonComposer.filename = self.view.file_name() 
 		global AGENT_CLIENT	
-		AGENT_CLIENT.sendCommand(json.dumps(jsonComposer.unlinkFileJson()))	
+		AGENT_CLIENT.sendCommand(json.dumps(jsonComposer.unlinkFileJson(self.view.file_name())))
+	
+	def	description(self):
+		return "Unlinks the current file from the cccp agent."
 
 
 # event listener for changes

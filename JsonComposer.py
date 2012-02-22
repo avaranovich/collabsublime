@@ -2,9 +2,8 @@ import sublime
 
 class JsonComposer:
 	def __init__(self, host, port):
-		self.filename = ""
 		self.callid = 0
-		print host, port
+		print "JsonComposer with host", host, "and port", port
 		self.host = host
 		self.port = port
     
@@ -15,11 +14,11 @@ class JsonComposer:
 	def initConnectionJson(self):
 		return ({"swank":"init-connection", "args":[{"protocol": "http",  "host": self.host, "port" : self.port}], "callId" : self.callId()})
     
-	def linkFileJson(self):
-		return ({"swank":"link-file", "args":[{"id": "id", "file-name": self.filename }], "callId" : self.callId()})
+	def linkFileJson(self, fileId, filename):
+		return ({"swank":"link-file", "args":[{"id": fileId , "file-name": filename }], "callId" : self.callId()})
     
-	def unlinkFileJson(self):
-		return ({"swank":"unlink-file", "args":[{ "file-name": self.filename }], "callId" : self.callId()})
+	def unlinkFileJson(self, filename):
+		return ({"swank":"unlink-file", "args":[{ "file-name": filename }], "callId" : self.callId()})
     
-	def editFileJson(self, op, posf, posb,  s):
-		return ({"swank": "edit-file", "file-name": self.filename, "args":[{"retain": posf}, { op: s}, {"retain": posb}], "callId" : self.callId()})
+	def editFileJson(self, filename, op, posf, posb, s):
+		return ({"swank": "edit-file", "file-name": filename, "args":[{"retain": posf}, { op: s}, {"retain": posb}], "callId" : self.callId()})
