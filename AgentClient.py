@@ -8,29 +8,33 @@ logging.basicConfig(filename='collaboration.log',level=logging.DEBUG, format='%(
 logging.debug('socket is created')
 
 class AgentClient(asyncore.dispatcher):
-	def __init__(self, host, port, afterInitCallback, afterReceivedCallback):
+	def __init__(self, afterInitCallback, afterReceivedCallback):
 		self.afterReceived = afterReceivedCallback
-		self.host = host
-		self.port = port
+		self.afterInitCallback = afterInitCallback
+		self.buffer = ""
+		self.connected = False
+		# queue stores commands to be send
+		self.cmd_q = Queue.Queue()
+		# queue stores replies from the agent
+		self.reply_q = Queue.Queue()
+
+ 	def initConnection(self, host, port):
 		try:
 			asyncore.dispatcher.__init__(self)
 			self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
 			self.connect( (host, port) )
-			self.buffer = ""
-			# queue stores commands to be send
-			self.cmd_q = Queue.Queue()
-			# queue stores replies from the agent
-			self.reply_q = Queue.Queue()
 			# start downloader in new thread
 			downloader = Thread(target=self.downloadCommands)
 			downloader.start()
 			# inform  via callback
-			afterInitCallback(self)
+			self.connected = True
+			self.afterInitCallback(self)
 	 	except Exception as e:
-			logging.error("error while creating AgentClient")
+			#logging.error("error while creating AgentClient")
 			msg = '{0} ; {0} ; {0} ; {0}'.format(e, repr(e), e.message, e.args)
-			logging.error(msg)
+			#logging.error(msg)
 			print msg
+			pass
 			# TODO: notify a user that plugin will not work, because it was not able to set up the connection; perhaps the agent is not running?
 
     # sends command by putting it in the queue
@@ -56,9 +60,9 @@ class AgentClient(asyncore.dispatcher):
 		try:	
 			self.send(toSend)
 		except Exception as e:
-			logging.error("Error while sending message to agent " + host + ":" + port)
+			#logging.error("Error while sending message to agent " + host + ":" + port)
 			emsg = '{0} ; {0} ; {0} ; {0}'.format(e, repr(e), e.message, e.args)
-			logging.error(emsg)
+			#logging.error(emsg)
 			print emsg
 
 	def handle_connect(self):

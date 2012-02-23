@@ -81,13 +81,16 @@ class TrackChangesCore:
   		
   	# sets up AgentClient and listens
 	def listen(self):
-		cccpBase =  os.environ['CCCP'] 
-		print 'CCCP agent location: ' + cccpBase
-		portFile = cccpBase + '/cccp.port'
-		port = int(open(portFile, 'r').read())
-		global AGENT_CLIENT
-		AGENT_CLIENT = AgentClient("localhost", port, self.afterInit, self.itsdone)
-		asyncore.loop()
+		try:
+			global AGENT_CLIENT
+			AGENT_CLIENT = AgentClient(self.afterInit, self.itsdone)
+			asyncore.loop()
+		except Exception as e:
+			logging.error("Error while sending message to agent " + host + ":" + port)
+			emsg = '{0} ; {0} ; {0} ; {0}'.format(e, repr(e), e.message, e.args)
+			logging.error(emsg)
+			print emsg
+			pass
 		
 	# computes diffs between s1 and s2	 
 	def get_diff(self, s1, s2):
@@ -143,6 +146,12 @@ class LinkfileCommand(sublime_plugin.TextCommand):
 		GLOBAL_REG[self.view.file_name()] = True
 		jsonComposer = JsonComposer(s.get('host') or "localhost", s.get('port') or 8885)
 		global AGENT_CLIENT	
+		if not AGENT_CLIENT.connected:
+			cccpBase =  os.environ['CCCP'] 
+			print 'CCCP agent location: ' + cccpBase
+			portFile = cccpBase + '/cccp.port' df
+			port = int(open(portFile, 'r').read())
+			AGENT_CLIENT.initConnection("localhost", port)
 		AGENT_CLIENT.sendCommand(json.dumps(jsonComposer.linkFileJson(fileId, self.view.file_name())))
 
 	def	description(self):
