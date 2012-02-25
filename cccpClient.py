@@ -26,8 +26,8 @@ def global_exception_handler(type, value, traceback):
 sys.excepthook = global_exception_handler
 
 # global registration for files to be under change tracking, this stores an associated JsonComposer
-GLOBAL_REG = {}
 AGENT_CLIENT = None
+TRACK_CHANGES_CORE = None
 
 logging.basicConfig(filename='collaboration.log',level=logging.DEBUG, format='%(asctime)s %(message)s')
 logging.debug('socket is created')
@@ -41,8 +41,8 @@ class LinkfileCommand(sublime_plugin.TextCommand):
 		self.view.window().show_input_panel("Enter fileId to link to:", "", self.on_done, None, None)
 		
 	def on_done(self, fileId):
-		global GLOBAL_REG
-		GLOBAL_REG[self.view.file_name()] = True
+		global TRACK_CHANGES_CORE
+		TRACK_CHANGES_CORE.reg.append(self.view.file_name())
 		jsonComposer = JsonComposer(s.get('host') or "localhost", s.get('port') or 8885)
 		global AGENT_CLIENT	
 		if not AGENT_CLIENT.connected:
@@ -59,9 +59,8 @@ class LinkfileCommand(sublime_plugin.TextCommand):
 # command class for unlinking a file
 class UnlinkfileCommand(sublime_plugin.TextCommand):
 	def run(self, edit):		
-		global GLOBAL_REG
-		if GLOBAL_REG.has_key(self.view.file_name()):
-			del GLOBAL_REG[self.view.file_name()]
+		global TRACK_CHANGES_CORE
+		TRACK_CHANGES_CORE.reg = filter (lambda a: a != self.view.file_name(), TRACK_CHANGES_CORE.reg)
 		jsonComposer = JsonComposer(s.get('host') or "localhost", s.get('port') or 8885);
 		global AGENT_CLIENT	
 		AGENT_CLIENT.sendCommand(json.dumps(jsonComposer.unlinkFileJson(self.view.file_name())))
@@ -76,7 +75,8 @@ class TrackChangesWhenTypingListener(sublime_plugin.EventListener):
 		# connnect to the agent via the global socket
 		try:
 			global AGENT_CLIENT	
-			self.trackChangesCore = TrackChangesCore(s)
+			global TRACK_CHANGES_CORE
+			TRACK_CHANGES_CORE = TrackChangesCore(s)
 			AGENT_CLIENT = self.trackChangesCore.agentClient	
 		except Exception as e:
 			logging.error("error inside constructor of class TrackChangesWhenTypingListener(sublime_plugin.EventListener")
@@ -97,7 +97,6 @@ class TrackChangesWhenTypingListener(sublime_plugin.EventListener):
 		lock.acquire()
 		global INSERTING
 		if INSERTING == False :
-			global GLOBAL_REG
-			if GLOBAL_REG.has_key(view.file_name()):
-				self.trackChangesCore.track(view) 
+			global TRACK_CHANGES_CORE
+			TRACK_CHANGES_CORE.track(view) 
 		lock.release()		

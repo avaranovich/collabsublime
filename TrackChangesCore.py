@@ -24,10 +24,11 @@ class TrackChangesCore:
 		self.oldText = ""
 		self.window = None
 		self.jsonComposer = JsonComposer(settings.get('host') or "localhost", settings.get('port') or 8885)
-		self.agentClient = None
+		self.agentClient = AgentClient(self.afterInit, self.itsdone)
 		# start listening in new thread
 		clientThread = Thread(target=self.listen)
 		clientThread.start()
+		self.reg = []
 
 	# callback, after intialization send init-connection command to agent
 	def afterInit(self, agentClient):
@@ -60,7 +61,6 @@ class TrackChangesCore:
   	# sets up AgentClient and listens
 	def listen(self):
 		try:
-			self.agentClient = AgentClient(self.afterInit, self.itsdone)
 			asyncore.loop()
 		except Exception as e:
 			logging.error("Error while sending message to agent " + host + ":" + port)
