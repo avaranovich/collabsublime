@@ -28,6 +28,7 @@ class AgentClient(asyncore.dispatcher):
 
 	def _initAsyncLoop(self, host, port):
 		asyncore.dispatcher.__init__(self)
+		print host, port
 		self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.connect( (host, port) )
 		# start downloader in new thread
