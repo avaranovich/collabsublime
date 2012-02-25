@@ -73,21 +73,21 @@ class TrackChangesCore:
 		
 	# computes diffs between s1 and s2	 
 	def get_diff(self, s1, s2):
-		s = difflib.SequenceMatcher(None, s1, s2)
-		unchanged = [(m[1], m[1] + m[2]) for m in s.get_matching_blocks()]
 		diffs = []
-		prev = unchanged[0]
-		for u in unchanged[1:]:
-				diffs.append((prev[1], u[0]))
-				prev = u
+		s = difflib.SequenceMatcher(None, s1, s2)
+		for tag, i1, i2, j1, j2 in s.get_opcodes():
+			if tag == 'insert':
+				diffs.append(("insert", j1, j2))
+			if tag == 'delete':
+				diffs.append(("delete", i1, i2))
 		return diffs
  
 	# processes diffs
 	def processDiffs(self, view, diffs, currentText):
 		print "got some diffs. Sending"
 		for d in diffs: 
-			if d[0] != d[1]:
-				self.agentClient.sendCommand(json.dumps(self.jsonComposer.editFileJson(view.file_name(), "insert", d[0], view.size()-d[0] , view.substr(Region(d[0],d[1])))))	
+			if d[1] != d[2]:
+				self.agentClient.sendCommand(json.dumps(self.jsonComposer.editFileJson(view.file_name(), d[0], d[1], view.size()-d[1] , view.substr(Region(d[1],d[2])))))	
 		self.oldText = currentText;		
 			  
 	# gets diffs		  
