@@ -15,7 +15,6 @@ class EditFile:
 		self.offset = int(jsonr[2][1]['value'])
 		self.text = str(jsonr[2][3]['value'])
 
-
 class AgentClient(asyncore.dispatcher):
 	def __init__(self, afterInitCallback, afterReceivedCallback):
 		self.afterReceived = afterReceivedCallback

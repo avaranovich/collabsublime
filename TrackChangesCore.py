@@ -104,11 +104,16 @@ class TrackChangesCore:
 
 	# gets currents text and starts diff processing in a new thread		
 	def track(self, view):
-		currentText = view.substr(Region(0, view.size()))
-		filename = view.file_name()
-		self.diff_thread = Thread(target=self.track_sync, args=(view, currentText, filename))
-		self.diff_thread.start()
-		self.diff_thread.join()
+		lock = Lock()
+		lock.acquire()
+		global INSERTING
+		if INSERTING == False :
+			currentText = view.substr(Region(0, view.size()))
+			filename = view.file_name()
+			self.diff_thread = Thread(target=self.track_sync, args=(view, currentText, filename))
+			self.diff_thread.start()
+			self.diff_thread.join()
+		lock.release()	
 
 if __name__ == "__main__":
     main()		
