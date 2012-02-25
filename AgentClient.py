@@ -9,8 +9,8 @@ logging.debug('socket is created')
 
 class EditFile:
 	def __init__(self, message):
-		unhex = message[6:]
-		jsonr = json.loads(unhex)
+		#unhex = message[6:]
+		jsonr = json.loads(message)
 		self.filename = jsonr[1]['value']
 		self.offset = int(jsonr[2][1]['value'])
 		self.text = str(jsonr[2][3]['value'])
@@ -87,7 +87,10 @@ class AgentClient(asyncore.dispatcher):
 		self.close()
 
 	def handle_read(self):
-		data = self.recv(8192)
+		length = self.recv(6)
+		decimalLength = int(length, 16)
+		print "received 6 bytes; message length: " + length "(" + decimalLength + ")"
+		data = self.recv(decimalLength)
 		#for now we just support EditFile
 		res = EditFile(data)
 		print "received data from agent"
