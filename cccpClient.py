@@ -82,6 +82,7 @@ class TrackChangesWhenTypingListener(sublime_plugin.EventListener):
 			print e.message
 	
 	def onInitialized(self, agentClient):
+		print "onInitialized"
 		global AGENT_CLIENT	
 		AGENT_CLIENT = agentClient	
 
