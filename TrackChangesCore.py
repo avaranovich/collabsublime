@@ -19,12 +19,13 @@ INSERTING = False
 
 # Core class for change tracking
 class TrackChangesCore:  
-	def __init__(self, settings):
+	def __init__(self, settings, onInitialized):
 		self.savePoint = False
 		self.oldText = ""
 		self.window = None
+		self.agentClient = None
+		self.onInitialized = onInitialized
 		self.jsonComposer = JsonComposer(settings.get('host') or "localhost", settings.get('port') or 8885)
-		self.agentClient = AgentClient(self.afterInit, self.itsdone)
 		# start listening in new thread
 		clientThread = Thread(target=self.listen)
 		clientThread.start()
@@ -34,6 +35,8 @@ class TrackChangesCore:
 	def afterInit(self, agentClient):
 		print "got initialized agentClient!"
 		agentClient.sendCommand(json.dumps(self.jsonComposer.initConnectionJson()))
+		self.agentClient = agentClient
+		self.onInitialized(self.agentClient)
 
 	def insertedit(self, result):
 		lock = Lock()
@@ -61,6 +64,7 @@ class TrackChangesCore:
   	# sets up AgentClient and listens
 	def listen(self):
 		try:
+			self.agentClient = AgentClient(self.afterInit, self.itsdone)
 			asyncore.loop()
 		except Exception as e:
 			logging.error("Error while sending message to agent " + host + ":" + port)

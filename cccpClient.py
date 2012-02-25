@@ -74,15 +74,17 @@ class TrackChangesWhenTypingListener(sublime_plugin.EventListener):
 	def __init__(self):
 		# connnect to the agent via the global socket
 		try:
-			global AGENT_CLIENT	
 			global TRACK_CHANGES_CORE
-			TRACK_CHANGES_CORE = TrackChangesCore(s)
-			AGENT_CLIENT = TRACK_CHANGES_CORE.agentClient	
+			TRACK_CHANGES_CORE = TrackChangesCore(s, self.onInitialized)
 		except Exception as e:
 			logging.error("error inside constructor of class TrackChangesWhenTypingListener(sublime_plugin.EventListener")
 			logging.error(e.message)
 			print e.message
 	
+	def onInitialized(self, agentClient):
+		global AGENT_CLIENT	
+		AGENT_CLIENT = agentClient	
+
 	# nothing to do
 	def handle_timeout(self, view): 
 		return 
