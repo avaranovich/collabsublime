@@ -90,6 +90,7 @@ class AgentClient(asyncore.dispatcher):
 		data = self.recv(8192)
 		#for now we just support EditFile
 		res = EditFile(data)
+		print "received data from agent"
 		self.afterReceived(res)
 
 	def handle_error(self):
