@@ -87,7 +87,12 @@ class TrackChangesCore:
 		print "got some diffs. Sending"
 		for d in diffs: 
 			if d[1] != d[2]:
-				self.agentClient.sendCommand(json.dumps(self.jsonComposer.editFileJson(view.file_name(), d[0], d[1], view.size()-d[1] , view.substr(Region(d[1],d[2])))))	
+				difftext = ""
+				if d[0] == "insert":
+					difftext = view.substr(Region(d[1],d[2]))
+				if d[0] == "delete":
+					difftext = self.oldText[d[1]:d[2]]
+				self.agentClient.sendCommand(json.dumps(self.jsonComposer.editFileJson(view.file_name(), d[0], d[1], view.size()-d[1] , difftext)))	
 		self.oldText = currentText;		
 			  
 	# gets diffs		  
