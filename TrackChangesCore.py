@@ -35,8 +35,6 @@ class TrackChangesCore:
 	def afterInit(self, agentClient):
 		print "got initialized agentClient!"
 		agentClient.sendCommand(json.dumps(self.jsonComposer.initConnectionJson()))
-		self.agentClient = agentClient
-		self.onInitialized(self.agentClient)
 
 	def insertedit(self, result):
 		lock = Lock()
@@ -65,6 +63,7 @@ class TrackChangesCore:
 	def listen(self):
 		try:
 			self.agentClient = AgentClient(self.afterInit, self.itsdone)
+			self.onInitialized(self.agentClient)
 			asyncore.loop()
 		except Exception as e:
 			logging.error("Error while sending message to agent " + host + ":" + port)
