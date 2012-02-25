@@ -149,7 +149,7 @@ class LinkfileCommand(sublime_plugin.TextCommand):
 		if not AGENT_CLIENT.connected:
 			cccpBase =  os.environ['CCCP'] 
 			print 'CCCP agent location: ' + cccpBase
-			portFile = cccpBase + '/cccp.port' df
+			portFile = cccpBase + '/cccp.port'
 			port = int(open(portFile, 'r').read())
 			AGENT_CLIENT.initConnection("localhost", port)
 		AGENT_CLIENT.sendCommand(json.dumps(jsonComposer.linkFileJson(fileId, self.view.file_name())))

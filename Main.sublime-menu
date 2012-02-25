@@ -1,0 +1,27 @@
+[
+    {
+        "caption": "File",
+        "mnemonic": "F",
+        "id": "file",
+        "children":
+        [
+
+            { "caption": "-", "id": "window" },
+            {
+                "id": "CollabSublime",
+                "caption": "Collaboration",
+                "children":
+                [
+                    {
+                        "caption": "Link current file",
+                        "command": "linkfile"
+                    },
+                    {
+                        "caption": "Unlink current file",
+                        "command": "unlinkfile"
+                    }
+                ]
+            }
+        ]
+    }
+]
