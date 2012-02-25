@@ -26,18 +26,22 @@ class AgentClient(asyncore.dispatcher):
 		# queue stores replies from the agent
 		self.reply_q = Queue.Queue()
 
+	def _initAsyncLoop(self, host, port):
+		asyncore.dispatcher.__init__(self)
+		self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
+		self.connect( (host, port) )
+		# start downloader in new thread
+		downloader = Thread(target=self.downloadCommands)
+		downloader.start()
+		# inform  via callback
+		self.connected = True
+		asyncore.loop()
+
  	def initConnection(self, host, port):
 		try:
-			asyncore.dispatcher.__init__(self)
-			self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
-			self.connect( (host, port) )
-			# start downloader in new thread
-			downloader = Thread(target=self.downloadCommands)
-			downloader.start()
-			# inform  via callback
-			self.connected = True
+			init = Thread(target=self._initAsyncLoop, args=(host, port))
+			init.start()
 			self.afterInitCallback(self)
-			asyncore.loop()
 	 	except Exception as e:
 			#logging.error("error while creating AgentClient")
 			msg = '{0} ; {0} ; {0} ; {0}'.format(e, repr(e), e.message, e.args)
