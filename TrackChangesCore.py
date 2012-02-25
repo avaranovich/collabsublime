@@ -92,7 +92,8 @@ class TrackChangesCore:
 					difftext = view.substr(Region(d[1],d[2]))
 				if d[0] == "delete":
 					difftext = self.oldText[d[1]:d[2]]
-				self.agentClient.sendCommand(json.dumps(self.jsonComposer.editFileJson(view.file_name(), d[0], d[1], view.size()-d[1] , difftext)))	
+				if difftext != "":	
+					self.agentClient.sendCommand(json.dumps(self.jsonComposer.editFileJson(view.file_name(), d[0], d[1], view.size()-d[1] , difftext)))	
 		self.oldText = currentText;		
 			  
 	# gets diffs		  
