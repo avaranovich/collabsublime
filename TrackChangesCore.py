@@ -39,16 +39,11 @@ class TrackChangesCore:
 		lock.acquire()
 		global INSERTING
 		INSERTING = True
-		unhex = result[6:]
-		jsonr = json.loads(unhex)
-		filename = jsonr[1]['value']
-		offset = int(jsonr[2][1]['value'])
-		text = str(jsonr[2][3]['value'])
-		print 'Inserting', text, 'at', offset
+		print 'Inserting', result.text, 'at', result.offset
 		for v in sublime.active_window().views():
-			if v.file_name() == filename:
+			if v.file_name() == result.filename:
 				edit = v.begin_edit()
-				v.insert(edit, offset, text)
+				v.insert(edit, result.offset, result.text)
 				v.end_edit(edit)
 				self.oldText = v.substr(Region(0, v.size()))
 				if not self.savePoint:

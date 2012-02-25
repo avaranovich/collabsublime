@@ -7,6 +7,15 @@ from JsonComposer import JsonComposer
 logging.basicConfig(filename='collaboration.log',level=logging.DEBUG, format='%(asctime)s %(message)s')
 logging.debug('socket is created')
 
+class EditFile:
+	def __init__(self, message):
+		unhex = message[6:]
+		jsonr = json.loads(unhex)
+		self.filename = jsonr[1]['value']
+		self.offset = int(jsonr[2][1]['value'])
+		self.text = str(jsonr[2][3]['value'])
+
+
 class AgentClient(asyncore.dispatcher):
 	def __init__(self, afterInitCallback, afterReceivedCallback):
 		self.afterReceived = afterReceivedCallback
@@ -80,7 +89,9 @@ class AgentClient(asyncore.dispatcher):
 
 	def handle_read(self):
 		data = self.recv(8192)
-		self.afterReceived(data)
+		#for now we just support EditFile
+		res = EditFile(data)
+		self.afterReceived(res)
 
 	def handle_error(self):
 		print "Error!"  
