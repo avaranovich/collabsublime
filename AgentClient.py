@@ -89,7 +89,7 @@ class AgentClient(asyncore.dispatcher):
 	def handle_read(self):
 		length = self.recv(6)
 		decimalLength = int(length, 16)
-		print "received 6 bytes; message length: " + length "(" + decimalLength + ")"
+		print "received 6 bytes; message length: " + length +  "(" + decimalLength + ")"
 		data = self.recv(decimalLength)
 		#for now we just support EditFile
 		res = EditFile(data)

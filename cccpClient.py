@@ -77,7 +77,7 @@ class TrackChangesWhenTypingListener(sublime_plugin.EventListener):
 			global AGENT_CLIENT	
 			global TRACK_CHANGES_CORE
 			TRACK_CHANGES_CORE = TrackChangesCore(s)
-			AGENT_CLIENT = self.trackChangesCore.agentClient	
+			AGENT_CLIENT = TRACK_CHANGES_CORE.agentClient	
 		except Exception as e:
 			logging.error("error inside constructor of class TrackChangesWhenTypingListener(sublime_plugin.EventListener")
 			logging.error(e.message)
