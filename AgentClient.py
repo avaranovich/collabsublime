@@ -37,6 +37,7 @@ class AgentClient(asyncore.dispatcher):
 			# inform  via callback
 			self.connected = True
 			self.afterInitCallback(self)
+			asyncore.loop()
 	 	except Exception as e:
 			#logging.error("error while creating AgentClient")
 			msg = '{0} ; {0} ; {0} ; {0}'.format(e, repr(e), e.message, e.args)

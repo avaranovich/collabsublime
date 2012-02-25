@@ -64,7 +64,6 @@ class TrackChangesCore:
 		try:
 			self.agentClient = AgentClient(self.afterInit, self.itsdone)
 			self.onInitialized(self.agentClient)
-			asyncore.loop()
 		except Exception as e:
 			logging.error("Error while sending message to agent " + host + ":" + port)
 			emsg = '{0} ; {0} ; {0} ; {0}'.format(e, repr(e), e.message, e.args)
