@@ -130,6 +130,11 @@ class TrackChangesCore:
 
 	# gets currents text and starts diff processing in a new thread		
 	def track(self, view):
+		print "Tracking", view.file_name(), "?"
+		if not view.file_name() in self.reg:
+			print "No."
+			return;
+		print "Yes."
 		lock = Lock()
 		lock.acquire()
 		global INSERTING
