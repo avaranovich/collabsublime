@@ -41,7 +41,7 @@ class AgentClient(asyncore.dispatcher):
 
  	def initConnection(self, host, port):
 		try:
-			init = Thread(target=self._initAsyncLoop, args=(host, port, self.afterInitCallback)
+			init = Thread(target=self._initAsyncLoop, args=(host, port, self.afterInitCallback))
 			init.start()
 	 	except Exception as e:
 			#logging.error("error while creating AgentClient")

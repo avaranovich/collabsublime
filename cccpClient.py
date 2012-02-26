@@ -35,23 +35,13 @@ s = sublime.load_settings("Collaboration.sublime-settings")
 	
 # command class for linking a file
 class LinkfileCommand(sublime_plugin.TextCommand):
-
 	def run(self, edit):		
 		# get fileId from user
 		self.view.window().show_input_panel("Enter fileId to link to:", "", self.on_done, None, None)
 		
 	def on_done(self, fileId):
 		global TRACK_CHANGES_CORE
-		TRACK_CHANGES_CORE.reg.append(self.view.file_name())
-		jsonComposer = JsonComposer(s.get('host') or "localhost", s.get('port') or 8885)
-		global AGENT_CLIENT	
-		if not AGENT_CLIENT.connected:
-			cccpBase =  os.environ['CCCP'] 
-			print 'CCCP agent location: ' + cccpBase
-			portFile = cccpBase + '/cccp.port'
-			port = int(open(portFile, 'r').read())
-			AGENT_CLIENT.initConnection("localhost", port)
-		AGENT_CLIENT.sendCommand(json.dumps(jsonComposer.linkFileJson(fileId, self.view.file_name())))
+		TRACK_CHANGES_CORE.addFile(self.view.file_name(), fileId)
 
 	def	description(self):
 		return "Links the current file to the cccp agent. Running this command will eventually insert preceding edits."	

@@ -30,11 +30,15 @@ class TrackChangesCore:
 		clientThread = Thread(target=self.listen)
 		clientThread.start()
 		self.reg = []
+		self.afterConnectionInitialized = None
 
 	# callback, after intialization send init-connection command to agent
 	def afterInit(self, agentClient):
 		print "got initialized agentClient!"
 		agentClient.sendCommand(json.dumps(self.jsonComposer.initConnectionJson()))
+		if self.afterConnectionInitialized != None:
+			print "afterConnectionInitialized"
+			self.afterConnectionInitialized()
 
 	def insertedit(self, result):
 		lock = Lock()
@@ -112,6 +116,17 @@ class TrackChangesCore:
 			sublime.set_timeout(functools.partial(self.processDiffs, view, diffs, currentText),1)
 		except:
 			pass
+
+	def addFile(self, fileName, fileId):
+		if not self.agentClient.connected:
+			self.afterConnectionInitialized = self.agentClient.sendCommand(json.dumps(self.jsonComposer.linkFileJson(fileId, fileName)))
+			cccpBase =  os.environ['CCCP'] 
+			print 'CCCP agent location: ' + cccpBase
+			portFile = cccpBase + '/cccp.port'
+			port = int(open(portFile, 'r').read())
+			self.agentClient.initConnection("localhost", port)
+		else:
+			self.agentClient.sendCommand(json.dumps(self.jsonComposer.linkFileJson(fileId, fileName)))
 
 	# gets currents text and starts diff processing in a new thread		
 	def track(self, view):
