@@ -127,6 +127,7 @@ class TrackChangesCore:
 			self.agentClient.initConnection("localhost", port)
 		else:
 			self.agentClient.sendCommand(json.dumps(self.jsonComposer.linkFileJson(fileId, fileName)))
+		self.reg.append(fileName)
 
 	# gets currents text and starts diff processing in a new thread		
 	def track(self, view):
