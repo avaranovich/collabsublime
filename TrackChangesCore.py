@@ -45,11 +45,14 @@ class TrackChangesCore:
 		lock.acquire()
 		global INSERTING
 		INSERTING = True
-		print 'Inserting', result.text, 'at', result.offset
+		print result.op, result.text, "at", result.offset, "in", result.filename
 		for v in sublime.active_window().views():
 			if v.file_name() == result.filename:
 				edit = v.begin_edit()
-				v.insert(edit, result.offset, result.text)
+				if result.op == ':insert':
+					v.insert(edit, result.offset, result.text)
+				if result.op == ':delete':
+					v.erase(edit, Region(result.offset, result.offset + len(result.text)))
 				v.end_edit(edit)
 				self.oldText = v.substr(Region(0, v.size()))
 				if not self.savePoint:

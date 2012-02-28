@@ -9,11 +9,15 @@ logging.debug('socket is created')
 
 class EditFile:
 	def __init__(self, message):
-		#unhex = message[6:]
 		jsonr = json.loads(message)
-		self.filename = jsonr[1]['value']
-		self.offset = int(jsonr[2][1]['value'])
-		self.text = str(jsonr[2][3]['value'])
+		self.op = jsonr[2][2]['value'];
+		self.isOp = (self.op == ':insert') or (self.op == ':delete')
+		print self.op
+		if (self.isOp):
+			self.filename = jsonr[1]['value']
+			self.offset = int(jsonr[2][1]['value'])
+			self.text = str(jsonr[2][3]['value'])
+		
 
 class AgentClient(asyncore.dispatcher):
 	def __init__(self, afterInitCallback, afterReceivedCallback):
