@@ -99,11 +99,13 @@ class TrackChangesCore:
 				if d[0] == "insert":
 					difftext = view.substr(Region(d[1],d[2]))
 					difflength = len(difftext)
+					r1 = d[1]
+					r2 = view.size() - r1 - len(difftext)
 				if d[0] == "delete":
 					difftext = self.oldText[d[1]:d[2]]
 					difflength = -len(difftext)
-				r1 = d[1]
-				r2 = view.size() - r1 - len(difftext)
+					r1 = d[1]
+					r2 = len(self.oldText) - r1 - len(difftext)
 				if difftext != "":	
 					self.agentClient.sendCommand(json.dumps(self.jsonComposer.editFileJson(view.file_name(), d[0], r1, r2, difftext)))	
 		self.oldText = currentText;		
