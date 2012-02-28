@@ -98,7 +98,7 @@ class TrackChangesCore:
 				boffset = 0
 				if d[0] == "insert":
 					difftext = view.substr(Region(d[1],d[2]))
-					boffset = view.size()-d[1] + 1
+					boffset = view.size() - (d[1] + 1)
 				if d[0] == "delete":
 					difftext = self.oldText[d[1]:d[2]]
 					boffset = len(self.oldText)
