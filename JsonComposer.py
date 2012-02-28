@@ -22,10 +22,10 @@ class JsonComposer:
     
 	def editFileJson(self, filename, op, posf, posb, s):
 		args = []
-		if posf != 0:
+		if posf > 0:
 			args.append({"retain": posf})
 		args.append({op: s})
-		if posb != 0:
+		if posb > 0:
 			args.append({"retain": posb})
 
 
