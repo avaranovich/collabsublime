@@ -98,12 +98,12 @@ class TrackChangesCore:
 				boffset = 0
 				if d[0] == "insert":
 					difftext = view.substr(Region(d[1],d[2]))
-					boffset = view.size() - (d[1] + 1)
+					boffset = view.size() - d[1]
 				if d[0] == "delete":
 					difftext = self.oldText[d[1]:d[2]]
-					boffset = len(self.oldText)
+					boffset = len(self.oldText) - 1
 				if difftext != "":	
-					self.agentClient.sendCommand(json.dumps(self.jsonComposer.editFileJson(view.file_name(), d[0], d[1], boffset + 1, difftext)))	
+					self.agentClient.sendCommand(json.dumps(self.jsonComposer.editFileJson(view.file_name(), d[0], d[1], boffset, difftext)))	
 		self.oldText = currentText;		
 			  
 	# gets diffs		  
