@@ -15,7 +15,7 @@ class EditFile:
 		print self.op
 		if (self.isOp):
 			self.filename = jsonr[1]['value']
-			self.offset = int(jsonr[2][1]['value']) - 1
+			self.offset = int(jsonr[2][1]['value'])
 			self.text = str(jsonr[2][3]['value'])
 		
 
