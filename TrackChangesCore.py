@@ -100,9 +100,7 @@ class TrackChangesCore:
 				if d[0] == "insert":
 					difftext = view.substr(Region(d[1],d[2]))
 					r1 = d[1]
-					if d[1] == 0:
-						r1 = r1 + 1 
-					r2 = view.size() - r1
+					r2 = view.size() - r1 - len(difftext)
 				if d[0] == "delete":
 					r1 = 0
 					#difftext = self.oldText[d[1]:d[2]]
