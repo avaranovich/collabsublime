@@ -103,7 +103,7 @@ class TrackChangesCore:
 					difftext = self.oldText[d[1]:d[2]]
 					boffset = len(self.oldText)
 				if difftext != "":	
-					self.agentClient.sendCommand(json.dumps(self.jsonComposer.editFileJson(view.file_name(), d[0], d[1], boffset , difftext)))	
+					self.agentClient.sendCommand(json.dumps(self.jsonComposer.editFileJson(view.file_name(), d[0], d[1], boffset + 1, difftext)))	
 		self.oldText = currentText;		
 			  
 	# gets diffs		  
