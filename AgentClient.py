@@ -12,10 +12,11 @@ class EditFile:
 		jsonr = json.loads(message)
 		indexshift = 0
 		self.offset = 0
-		if (int(jsonr[2][0]['value'] == 'retain')):
+		if (int(jsonr[2][0]['value'] == ':retain')):
 			self.offset = int(jsonr[2][1]['value'])
 		else:
 			indexshift = -2
+		print "indexshift:", indexshift
 		self.op = jsonr[2][2+indexshift]['value'];
 		self.isOp = (self.op == ':insert') or (self.op == ':delete')
 		print self.op
