@@ -10,13 +10,19 @@ logging.debug('socket is created')
 class EditFile:
 	def __init__(self, message):
 		jsonr = json.loads(message)
-		self.op = jsonr[2][2]['value'];
+		indexshift = 0
+		self.offset = 0
+		if (int(jsonr[2][0]['value'] == 'retain')):
+			self.offset = int(jsonr[2][1]['value'])
+		else:
+			indexshift = -2
+		self.op = jsonr[2][2-indexshift]['value'];
 		self.isOp = (self.op == ':insert') or (self.op == ':delete')
 		print self.op
 		if (self.isOp):
 			self.filename = jsonr[1]['value']
-			self.offset = int(jsonr[2][1]['value'])
-			self.text = str(jsonr[2][3]['value'])
+			self.text = str(jsonr[2][3-indexshift]['value'])
+		print "EditFile: offset:", self.offset, "op:", self.op, "filename:", self.filename, "text:", self.text
 		
 
 class AgentClient(asyncore.dispatcher):
