@@ -16,12 +16,12 @@ class EditFile:
 			self.offset = int(jsonr[2][1]['value'])
 		else:
 			indexshift = -2
-		self.op = jsonr[2][2-indexshift]['value'];
+		self.op = jsonr[2][2+indexshift]['value'];
 		self.isOp = (self.op == ':insert') or (self.op == ':delete')
 		print self.op
 		if (self.isOp):
 			self.filename = jsonr[1]['value']
-			self.text = str(jsonr[2][3-indexshift]['value'])
+			self.text = str(jsonr[2][3+indexshift]['value'])
 		print "EditFile: offset:", self.offset, "op:", self.op, "filename:", self.filename, "text:", self.text
 		
 
