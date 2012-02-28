@@ -35,13 +35,16 @@ s = sublime.load_settings("Collaboration.sublime-settings")
 	
 # command class for linking a file
 class LinkfileCommand(sublime_plugin.TextCommand):
-	def run(self, edit):		
+	def run(self, edit):	
+		self.v = self.view	
 		# get fileId from user
-		self.view.window().show_input_panel("Enter fileId to link to:", "", self.on_done, None, None)
+		self.view.window().show_input_panel("Enter fileId to link to:", "", functools.partial(self.on_done, self.view), None, None)
 		
-	def on_done(self, fileId):
+	def on_done(self, view, fileId):
 		global TRACK_CHANGES_CORE
-		TRACK_CHANGES_CORE.addFile(self.view.file_name(), fileId)
+		print view
+		print view.file_name()
+		TRACK_CHANGES_CORE.addFile(view.file_name(), fileId)
 
 	def	description(self):
 		return "Links the current file to the cccp agent. Running this command will eventually insert preceding edits."	

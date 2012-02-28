@@ -86,9 +86,9 @@ class AgentClient(asyncore.dispatcher):
 			self.send(toSend)
 		except Exception as e:
 			#logging.error("Error while sending message to agent " + host + ":" + port)
-			emsg = '{0} ; {0} ; {0} ; {0}'.format(e, repr(e), e.message, e.args)
+			#emsg = '{0} ; {0} ; {0} ; {0}'.format(e, repr(e), e.message, e.args)
 			#logging.error(emsg)
-			print emsg
+			print e.args
 
 	def handle_connect(self):
 		print "Connected to the agent"
